@@ -1,0 +1,46 @@
+# MTU: 1420
+# Replacing metalLB
+l2announcements:
+  enabled: true
+externalIPs:
+  enabled: true
+
+# Increase QPS/Burst when using L2 announcements https://docs.cilium.io/en/stable/network/l2-announcements/#sizing-client-rate-limit
+k8sClientRateLimit:
+  qps: 30
+  burst: 50
+
+ipam:
+  mode: "kubernetes"
+ipv6:
+  enabled: false
+envoy:
+  enabled: true
+hubble:
+  enabled: true
+  listenAddress: ":4244"
+  metrics:
+    enabled:
+      - dns
+      - drop
+      - tcp
+      - flow
+      - port-distribution
+      - icmp
+      - http
+  relay:
+    enabled: true
+  ui:
+    enabled: true
+operator:
+  replicas: 1
+  rollOutPods: true
+rollOutCiliumPods: true
+
+# kube-proxy replacement is required when using l2announcements
+kubeProxyReplacement: true
+routingMode: native
+ipv4NativeRoutingCIDR: 10.96.0.0/16
+autoDirectNodeRoutes: true
+loadBalancer:
+  mode: hybrid

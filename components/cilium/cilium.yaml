@@ -1,0 +1,31 @@
+apiVersion: source.toolkit.fluxcd.io/v1
+kind: HelmRepository
+metadata:
+  name: cilium
+spec:
+  interval: 12h
+  url: https://helm.cilium.io
+---
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: cilium
+spec:
+  interval: 1h
+  chart:
+    spec:
+      chart: cilium
+      version: "1.17.1"
+      sourceRef:
+        kind: HelmRepository
+        name: cilium
+      interval: 12h
+  install:
+    timeout: 9m
+  upgrade:
+    timeout: 9m
+  driftDetection:
+    mode: enabled
+  valuesFrom:
+    - kind: ConfigMap
+      name: cilium-values
