@@ -1,0 +1,6 @@
+---
+creation_rules:
+  - path_regex: secrets/*
+    key_groups:
+      - age: [age1ktfsdqtzs3c84krtw62rjumqhf4fvf8acqauv5x6cr883wgj53sq5df9y6] # coutug
+
