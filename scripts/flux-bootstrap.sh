@@ -2,6 +2,10 @@
 
 set -o errexit
 
+if flux check; then
+    exit 0
+fi
+
 # Check if GITHUB_TOKEN is already set; if not, use sops to decrypt it
 if [ -z "$GITHUB_TOKEN" ]; then
     GITHUB_TOKEN=$(sops -d ./secrets/flux-bootstrap-key)
