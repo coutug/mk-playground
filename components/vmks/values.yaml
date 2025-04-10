@@ -18,26 +18,8 @@ vmcluster:
   ingress:
     insert:
       enabled: false
-      ingressClassName: nginx-internal
-      annotations:
-        cert-manager.io/issuer: monitoring-letsencrypt
-      hosts:
-        - vminsert.monitor.${CLUSTER_NAME}.${INTERNAL_DOMAIN}
-      tls:
-        - hosts:
-          - vminsert.monitor.${CLUSTER_NAME}.${INTERNAL_DOMAIN}
-          secretName: vminsert-tls-cert
     select:
       enabled: false
-      ingressClassName: nginx-internal
-      annotations:
-        cert-manager.io/issuer: monitoring-letsencrypt
-      hosts:
-        - vmselect.monitor.${CLUSTER_NAME}.${INTERNAL_DOMAIN}
-      tls:
-        - hosts:
-          - vmselect.monitor.${CLUSTER_NAME}.${INTERNAL_DOMAIN}
-          secretName: vmselect-tls-cert
   spec:
     retentionPeriod: "1"
     replicationFactor: 2
@@ -81,7 +63,7 @@ vmcluster:
 alertmanager:
   spec:
     replicaCount: 1
-    externalURL: https://alertmanager.monitor.${CLUSTER_NAME}.${INTERNAL_DOMAIN}
+    externalURL: ""
     disableNamespaceMatcher: true
   config:
     route:
@@ -99,18 +81,6 @@ alertmanager:
         - receiver: "blackhole"
           matchers:
           - alertname="Watchdog"
-        - receiver: zd-cluster
-          matchers:
-          - zen="duty"
-        - receiver: zd-cluster
-          matchers:
-          - zen="duty"
-        - receiver: zenduty
-          matchers:
-          - zen="duty"
-          continue: true
-        - receiver: "oncall"
-          continue: true
     inhibit_rules:
       # Show only highest severity alerts based per name and namespace
       - source_matchers:
@@ -143,32 +113,14 @@ alertmanager:
         - alertname="InfoInhibitor"
     receivers:
       - name: blackhole
-      - name: oncall
-        webhook_configs:
-          - url: https://oncall.monitor.${CLUSTER_NAME}.${INTERNAL_DOMAIN}/integrations/v1/alertmanager/owtXJIDCh4V4wuvPHYZbiASWZ/
-            send_resolved: true
-            max_alerts: 100
-      - name: zenduty
-        webhook_configs:
-          - url: https://events.zenduty.com/integration/hy7st/prometheus/5eed231c-127a-42f2-bad3-8d990a11f023/
 
   ingress:
     enabled: false
-    ingressClassName: nginx-internal
-    annotations:
-      cert-manager.io/issuer: monitoring-letsencrypt
-    hosts: 
-      - alertmanager.monitor.${CLUSTER_NAME}.${INTERNAL_DOMAIN}
-    tls:
-      - hosts:
-        - alertmanager.monitor.${CLUSTER_NAME}.${INTERNAL_DOMAIN}
-        secretName: alertmanager-tls-cert
 
 vmalert:
   spec:
     extraArgs:
       http.pathPrefix: "/"
-      external.alert.source: '{{`explore?left={"datasource":"VictoriaMetrics","queries":[{"expr":{{ .Expr|jsonEscape|queryEscape }},"refId":"A"}],"range":{"from":"{{ .ActiveAt.UnixMilli }}","to":"now"}}`}}'
 
 vmagent:
   spec:
@@ -196,15 +148,6 @@ vmagent:
     enabled: true
   ingress:
     enabled: false
-    ingressClassName: nginx-internal
-    annotations:
-      cert-manager.io/issuer: monitoring-letsencrypt
-    hosts: 
-      - vmagent-internal.monitor.${CLUSTER_NAME}.${INTERNAL_DOMAIN}
-    tls:
-      - hosts:
-        - vmagent-internal.monitor.${CLUSTER_NAME}.${INTERNAL_DOMAIN}
-        secretName: vmagent-internal-tls-cert
 
 grafana:
   replicas: 1
@@ -214,15 +157,6 @@ grafana:
     # existingSecret: flux-grafana-admin
   ingress:
     enabled: false
-    ingressClassName: nginx-internal
-    annotations:
-      cert-manager.io/issuer: monitoring-letsencrypt
-    hosts: 
-      - "grafana.monitor.${CLUSTER_NAME}.${INTERNAL_DOMAIN}"
-    tls:
-      - hosts:
-        - "grafana.monitor.${CLUSTER_NAME}.${INTERNAL_DOMAIN}"
-        secretName: grafana-tls-cert
   grafana.ini:
     log:
       level: debug
