@@ -1,0 +1,32 @@
+apiVersion: source.toolkit.fluxcd.io/v1
+kind: HelmRepository
+metadata:
+  name: vmks
+spec:
+  interval: 12h
+  type: oci
+  url: oci://ghcr.io/victoriametrics/helm-charts
+---
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: vmks
+spec:
+  interval: 1h
+  chart:
+    spec:
+      chart: victoria-metrics-k8s-stack
+      version: "0.42.0"
+      sourceRef:
+        kind: HelmRepository
+        name: vmks
+      interval: 12h
+  install:
+    timeout: 9m
+  upgrade:
+    timeout: 9m
+  driftDetection:
+    mode: enabled
+  valuesFrom:
+    - kind: ConfigMap
+      name: vmks-values

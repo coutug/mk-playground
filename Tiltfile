@@ -11,7 +11,7 @@ local_resource(
     resource_deps=['minikube'],
     deps=['./scripts/flux-bootstrap.sh'],
     env={
-        'CLUSTER_NAME': 'mk',
+        'CLUSTER_NAME': 'alertmanager',
         'GITHUB_TOKEN': os.getenv('GITHUB_TOKEN', ''),
         'GITHUB_OWNER': 'coutug',
         'GITHUB_REPOSITORY': 'mk-playground',
