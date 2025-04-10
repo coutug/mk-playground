@@ -209,7 +209,7 @@ coreDns:
   enabled: true
 # CAPI
 kubeEtcd:
-  enabled: false
+  enabled: true
 # CAPI
 kubeScheduler:
   enabled: false
