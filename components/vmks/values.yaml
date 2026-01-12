@@ -56,6 +56,21 @@ vmcluster:
                 storage: 1Gi
       extraArgs:
         dedup.minScrapeInterval: 30s
+      hpa:
+        maxReplicas: 2
+        minReplicas: 1
+        metrics:
+          - type: Resource
+            resource:
+              name: memory
+              target:
+                type: Utilization
+                averageUtilization: 20
+        behavior:
+          scaleDown:
+            stabilizationWindowSeconds: 300
+          scaleUp:
+            stabilizationWindowSeconds: 0
     
     vminsert:
       replicaCount: 1
@@ -69,8 +84,7 @@ alertmanager:
     route:
       receiver: "blackhole"
       group_by:
-        - "alertgroup"
-        - "severity"
+        - "namespace"
         - "cluster"
       group_wait: 30s
       # group_interval: 1m
@@ -83,11 +97,11 @@ alertmanager:
           - alertname="Watchdog"
     inhibit_rules:
       # Show only highest severity alerts based per name and namespace
-      - source_matchers:
+      - source_matchers: # alerte qui prend le dessus
         - severity="critical"
-        target_matchers:
+        target_matchers: # alerte inhibited
         - severity=~"warning|info"
-        equal:
+        equal:           # si ces labels sont égaux
         - cluster
       - source_matchers:
         - severity="warning"
