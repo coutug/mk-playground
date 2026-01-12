@@ -2,7 +2,7 @@
 
 set -o errexit
 
-minikube start -p $CLUSTER_NAME --cni cilium --nodes 3 --cpus 2 --memory 2g --addons csi-hostpath-driver
+minikube start -p $CLUSTER_NAME --cni cilium --nodes 3 --cpus 2 --memory 2g --addons csi-hostpath-driver,metrics-server
 
 minikube config set profile $CLUSTER_NAME
 
